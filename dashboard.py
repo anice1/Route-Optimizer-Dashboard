@@ -1,4 +1,3 @@
-from turtle import color, heading
 import streamlit as st
 import altair as alt
 import pandas as pd
@@ -7,7 +6,7 @@ from import_data import load_data
 import plotly.express as px
 import plotly.figure_factory as ff
 
-st.cache
+st.cache()
 df = load_data()
 
 def load_dashobard():

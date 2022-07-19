@@ -1,4 +1,3 @@
-from click import edit
 import streamlit as st
 import pandas as pd
 from st_aggrid import AgGrid, GridUpdateMode
@@ -7,6 +6,7 @@ from import_data import load_data
 import numpy as np
 
 # Import data
+st.cache()
 df = load_data()
 
 with st.sidebar:
