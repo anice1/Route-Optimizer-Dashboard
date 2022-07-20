@@ -24,6 +24,7 @@ def load_dashobard():
     plot_area_covered()
 
     # visualize vehicle movement
+    st.write('Plot pretty visuals of vehicle movements from pickup to delivery')
     visualize_vehicle_movement()
 
 def get_metrics():
@@ -45,7 +46,7 @@ def plot_area_covered():
 
     
 def get_vehicle_no():
-    vehicle_nos = st.multiselect('Vehicle Number', df['vehicle_no'].unique())
+    vehicle_nos = st.multiselect('Vehicle Number', df['vehicle_no'].unique(), default='MH14GD9464')
     vehicles_df = pd.DataFrame()
     for vehicle_no in vehicle_nos:
         vdf = df[df['vehicle_no'] == vehicle_no]
