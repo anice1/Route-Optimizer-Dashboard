@@ -14,7 +14,7 @@ with st.sidebar:
 
 
 if selectbox == 'Dashboard':
-    from dashboard import load_dashobard
+    from pluggers import load_dashobard
     load_dashobard()
 
 # display data
