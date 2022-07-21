@@ -1,3 +1,4 @@
+import matplotlib.patches as patches
 import streamlit as st
 import altair as alt
 import pandas as pd
@@ -28,10 +29,10 @@ def load_dashobard():
     get_metrics()
     
 
-    dashboard = st.radio('Select Dashboard', ['Areas Covered','Vehicle Movement','Analysis Dashboard'], horizontal=True)
+    dashboard = st.radio('Select Dashboard', ['Areas Covered','Analysis Dashboard','Vehicle Movement'], horizontal=True)
 
     if dashboard == 'Areas Covered':
-        st.info('Visualize the all delivery areas covered')
+        # st.info('Visualize the all delivery areas covered')
 
         # Plot the areas covered
         plot_area_covered()
@@ -39,8 +40,11 @@ def load_dashobard():
     elif dashboard == 'Vehicle Movement':
         # visualize vehicle movement
         st.header('')
-        st.info('Plot pretty visuals of vehicle movements from pickup to delivery')
+        # st.info('Plot pretty visuals of vehicle movements from pickup to delivery')
         visualize_vehicle_movement()
+
+    elif dashboard == 'Analysis Dashboard':
+        analysis_dashboard()
 
 def get_metrics():
     on_time = round(df[df['actual_eta'] < df['planned_eta']].shape[0]/df.shape[0], 4)*100
@@ -54,7 +58,6 @@ def get_metrics():
 
 def plot_area_covered():
     # Create columns
-    st.write("Areas Covered")
     dest = df[['des_lon', 'des_lat']]
     dest.columns = ['lon', 'lat']
     st.map(dest)
@@ -123,38 +126,53 @@ def visualize_vehicle_movement():
 
 
     if vehicle_nos.shape[0]>0:
-        st.write('###### vehicle data')
+        st.write('###### vehicle details')
         st.dataframe(vehicle_nos, height=100)
 
-    # ddf = pd.DataFrame(
-    # np.random.randn(1000, 2) / [50, 50] + [37.76, -122.4],
-    # columns=['lat', 'lon'])
+def feature_engine():
+    df['bookingid_month'] = pd.to_datetime(df['bookingid_date']).dt.month
+    df['bookingid_day'] = pd.to_datetime(df['bookingid_date']).dt.day
+    df['bookingid_weekday'] = pd.to_datetime(df['bookingid_date']).dt.weekday
+    df['bookingid_year'] = pd.to_datetime(df['bookingid_date']).dt.year
 
-    # st.pydeck_chart(pdk.Deck(
-    #     map_style='mapbox://styles/mapbox/light-v9',
-    #     initial_view_state=pdk.ViewState(
-    #         latitude=37.76,
-    #         longitude=-122.4,
-    #         zoom=11,
-    #         pitch=50,
-    #     ),
-    #     layers=[
-    #         pdk.Layer(
-    #             'HexagonLayer',
-    #             data=ddf,
-    #             get_position='[lon, lat]',
-    #             radius=200,
-    #             elevation_scale=4,
-    #             elevation_range=[0, 1000],
-    #             pickable=True,
-    #             extruded=True,
-    #         ),
-    #         pdk.Layer(
-    #             'ScatterplotLayer',
-    #             data=ddf,
-    #             get_position='[lon, lat]',
-    #             get_color='[200, 30, 0, 160]',
-    #             get_radius=200,
-    #         ),
-    #     ],
-    # ))
+
+    
+def analysis_dashboard():
+    feature_engine()
+    
+    col1, col2 = st.columns(2)
+
+    with col1:
+        weekly_request = df.groupby('bookingid_day')['bookingid'].count()
+        weekly_request = weekly_request.reset_index()
+        weekly_request_fig = px.line(data_frame=weekly_request, x='bookingid_day', y='bookingid', \
+                                    title='Daily Delivery', 
+                                    range_x=[1,31])
+        st.plotly_chart(weekly_request_fig)
+
+    with col2:
+
+        week_day_request = df.groupby('bookingid_weekday')['bookingid'].count()
+        week_day_request_fig = px.area(x=['Mon','Tue','Wed','Thur','Fri','Sat','Sun'],\
+                                    y= week_day_request, title='Weekday Delivery')
+        st.plotly_chart(week_day_request_fig)
+
+
+    col3, col4 = st.columns(2)
+
+    with col3:
+        monthly_request = df.groupby('bookingid_month')['bookingid'].count()
+        monthly_request_fig = px.bar(x=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sept','Oct','Nov','Dec'], 
+                                    y=monthly_request, title='Monthly Delivery Request')
+
+        st.plotly_chart(monthly_request_fig)
+
+    with col4:
+        yearly_request = df.groupby('bookingid_year')['bookingid'].count()
+        yearly_request_fig = px.bar(data_frame=yearly_request.reset_index(), \
+                                    x=yearly_request.reset_index().bookingid_year, \
+                                    y=yearly_request.reset_index().bookingid, \
+                                    title='Yearly Requests')
+        st.plotly_chart(yearly_request_fig)
+
+

@@ -10,7 +10,7 @@ st.cache()
 df = load_data()
 
 with st.sidebar:
-    selectbox = st.selectbox('Operation', ['Dashboard','Tabular Data'])
+    selectbox = st.radio('Operation', ['Dashboard','Tabular Data'])
 
 
 if selectbox == 'Dashboard':
